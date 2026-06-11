@@ -2408,12 +2408,8 @@ class AdvancedBot(BaseBot):
             await self.highrise.chat(f"خطا در توقف رقص برای @{target_username}: {str(e)}")
             logger.error(f"خطا در cmd_partys برای {target_username}: {str(e)}")
 
-async def handle_ping(request):
-    return aiohttp.web.Response(text="Bot is Alive!")
-
 async def main():
     logger.info("تلاش برای بارگذاری متغیرهای محیطی...")
-    
     room_id = os.getenv("ROOM_ID", "6a29bcb958070610178270ed")
     api_token = os.getenv("API_TOKEN", "9a089b7f9bb1f38a943a6add2af7e1823a709e51119a7f9c7f870b443bb8c4cc")
     
@@ -2424,18 +2420,6 @@ async def main():
     logger.info(f"ROOM_ID: {room_id}")
     logger.info(f"API_TOKEN: {api_token}")
     
-    # راه‌اندازی وب‌سرور پینگ برای جلوگیری از Sleep شدن در رندر
-    app = aiohttp.web.Application()
-    app.router.add_get('/', handle_ping)
-    runner = aiohttp.web.AppRunner(app)
-    await runner.setup()
-    
-    port = int(os.getenv("PORT", 8080))
-    site = aiohttp.web.TCPSite(runner, '0.0.0.0', port)
-    await site.start()
-    logger.info(f"وب‌سرور پینگ روی پورت {port} ران شد.")
-    
-    # اتصال ایمن ربات به سرور بازی هایرایز
     bot_def = BotDefinition(room_id=room_id, api_token=api_token, bot=AdvancedBot())
     
     max_reconnect_attempts = 5
@@ -2445,13 +2429,20 @@ async def main():
             logger.info("تلاش برای اتصال به سرور Highrise...")
             from highrise.__main__ import main as highrise_main
             await highrise_main([bot_def])
-            break
-        except Exception as e:
-            logger.error(f"اتصال WebSocket قطع شد یا با خطا مواجه شد: {e}")
+        except aiohttp.client_exceptions.ClientConnectionResetError as e:
+            logger.error(f"اتصال WebSocket قطع شد: {e}")
             await bot_def.bot.cleanup_tasks()
             attempt += 1
-            await sleep(5) # اصلاح شده به sleep ساده برای هماهنگی با خط ۳ کدت
+            logger.info(f"تلاش برای اتصال مجدد ({attempt}/{max_reconnect_attempts}) پس از 10 ثانیه...")
+            await sleep(10)
+        else:
+            attempt = 0
+    logger.error("حداکثر تلاش‌های اتصال مجدد به پایان رسید.")
 
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(main())
+    logger.info("شروع اجرای ربات...")
+    try:
+        asyncio.run(main())
+    except Exception as e:
+        logger.error(f"خطا در اجرای اولیه: {e}", exc_info=True)
