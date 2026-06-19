@@ -1006,7 +1006,7 @@ class AdvancedBot(BaseBot):
         messages = {
             "fa": {
                 "welcome": self.config["welcome_message"],
-                "invalid_command": "دستور {cmd} شناخته نشده! برای راهنما !help بزنید.",
+                "invalid_command": "برای زدن دنس از عدد ۱ تا ۲۲۱ می توانید استفاده کنید ✨.",
                 "no_permission": "فقط ادمین‌ها می‌توانند از این دستور استفاده کنند!",
                 "user_not_found": "کاربر {username} آنلاین نیست.",
                 "invalid_format": "فرمت نادرست: {format}",
