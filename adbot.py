@@ -2318,10 +2318,13 @@ class AdvancedBot(BaseBot):
                 await self.highrise.chat("لطفاً شماره دنس را هم وارد کنید. مثال: !party all 1")
                 return
             dance_input = parts[2]
-            if dance_input not in self.emote_mapping:
-                await self.highrise.chat("شماره danc معتبر نیست!")
-                return
-            emote = self.emote_mapping[dance_input]
+        # به جای متغیرهای قبلی، مستقیم از دیکشنری لود شده استفاده می‌کنیم تا ارور نده
+        if dance_input not in self.emotes_duration and dance_input not in getattr(self, "emotes", {}):
+            await self.highrise.chat("شماره danc معتبر نیست!")
+            return
+            
+        # گرفتن اسم دنس به صورت مستقیم
+        emote = dance_input        
             duration = self.emote_durations.get(emote, 7.5)
             
             room_users = await self.highrise.get_room_users()
@@ -2349,7 +2352,7 @@ class AdvancedBot(BaseBot):
                     try:
                         while u_username in self.party_dances and self.party_dances[u_username][0] == emote:
                             # تغییر به send_animation برای سازگاری با روم سه‌بعدی
-                            await self.highrise.send_animation(emote, u.id)
+                            await self.highrise.send_animation(str(emote), u.id)
                             await sleep(duration + 1.5)
                     except CancelledError:
                         pass
@@ -2385,7 +2388,7 @@ class AdvancedBot(BaseBot):
                 async def single_party_loop():
                     try:
                         while target_username in self.party_dances and self.party_dances[target_username][0] == emote:
-                            await self.highrise.send_animation(emote, target_user.id)
+                            await self.highrise.send_animation(str(emote), target_user.id)
                     except CancelledError:
                             pass
                 
