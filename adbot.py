@@ -2328,7 +2328,7 @@ class AdvancedBot(BaseBot):
             
             room_users = await self.highrise.get_room_users()
             
-            # پیدا کردن آیدی خود ربات برای فیلتر کردن
+        # حل مشکل پیدا کردن دنس‌ها بدون ارور دادن
             try:
                 bot_info = await self.highrise.get_my_info()
                 bot_id = bot_info.id
