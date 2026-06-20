@@ -1244,7 +1244,7 @@ class AdvancedBot(BaseBot):
         except CancelledError:
             logger.info(f"وظیفه رقص برای {username} لغو شد.")
         except Exception as e:
-            logger.error(f"خطا در حلقه رقص برای {username}: {e}")
+            logger.error(f"خطا در حلقه رقص برای {username}: {e}") 
 
     async def stop_dance(self, user: User):
         username = user.username.lower()
